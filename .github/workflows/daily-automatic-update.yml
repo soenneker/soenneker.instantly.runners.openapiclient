@@ -54,7 +54,7 @@ jobs:
         run: dotnet build src/Soenneker.Instantly.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0
 
       - name: Install Playwright browsers
-        run: dotnet playwright install
+        run: dotnet playwright install --framework net9.0
 
       - name: Run
         run: dotnet run --project src/Soenneker.Instantly.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0
