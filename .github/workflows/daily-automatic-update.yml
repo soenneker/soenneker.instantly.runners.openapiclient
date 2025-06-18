@@ -53,9 +53,6 @@ jobs:
       - name: Build project
         run: dotnet build src/Soenneker.Instantly.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0 -c Release
 
-      - name: Inspect everything under src/
-        run: find src/ -type f
-
       - name: Ensure browsers are installed
         run: pwsh src/bin/Release/net9.0/playwright.ps1 install --with-deps
 
