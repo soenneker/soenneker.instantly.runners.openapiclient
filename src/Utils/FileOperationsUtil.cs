@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Cloudflare.Downloader.Abstract;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.File.Abstract;
 using Soenneker.Utils.FileSync.Abstract;
@@ -26,10 +27,10 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IOpenApiFixer _openApiFixer;
     private readonly IFileUtilSync _fileUtilSync;
     private readonly IFileUtil _fileUtil;
-    private readonly ICloudflareFileDownloader _cloudflareFileDownloader;
+    private readonly ICloudflareDownloader _cloudflareDownloader;
 
     public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil,
-        IOpenApiFixer openApiFixer, IFileUtilSync fileUtilSync, IFileUtil fileUtil, ICloudflareFileDownloader cloudflareFileDownloader)
+        IOpenApiFixer openApiFixer, IFileUtilSync fileUtilSync, IFileUtil fileUtil, ICloudflareDownloader cloudflareDownloader)
     {
         _logger = logger;
         _gitUtil = gitUtil;
@@ -38,7 +39,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         _openApiFixer = openApiFixer;
         _fileUtilSync = fileUtilSync;
         _fileUtil = fileUtil;
-        _cloudflareFileDownloader = cloudflareFileDownloader;
+        _cloudflareDownloader = cloudflareDownloader;
     }
 
     public async ValueTask Process(CancellationToken cancellationToken = default)
@@ -49,7 +50,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         _fileUtilSync.DeleteIfExists(targetFilePath);
 
-        var result = await _cloudflareFileDownloader.DownloadTextFile("https://api.instantly.ai/openapi/api_v2.json", cancellationToken: cancellationToken);
+        string? result = await _cloudflareDownloader.GetPageContent("https://api.instantly.ai/openapi/api_v2.json", cancellationToken: cancellationToken);
 
         if (result == null)
             throw new Exception("Failed to download OpenAPI spec from Instantly API");
