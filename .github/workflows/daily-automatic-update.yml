@@ -50,11 +50,14 @@ jobs:
             fi
           done
 
-      - name: Install Playwright Browsers
-        run: dotnet tool run playwright install
+      - name: Install Playwright CLI globally
+        run: dotnet tool install --global Microsoft.Playwright.CLI
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      - name: Install Playwright browsers
+        run: playwright install
+
+      - name: Add dotnet tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Run
         run: dotnet run --project src/Soenneker.Instantly.Runners.OpenApiClient.csproj --no-restore --verbosity normal --framework net9.0
