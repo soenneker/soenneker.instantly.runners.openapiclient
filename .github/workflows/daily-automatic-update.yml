@@ -50,6 +50,9 @@ jobs:
             fi
           done
 
+      - name: Install Playwright Browsers
+        run: dotnet tool run playwright install
+
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
