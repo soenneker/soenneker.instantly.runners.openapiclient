@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Soenneker.Cloudflare.Downloader.Abstract;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.File.Abstract;
-using Soenneker.Utils.FileSync.Abstract;
 
 namespace Soenneker.Instantly.Runners.OpenApiClient.Utils;
 
@@ -24,31 +23,28 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IGitUtil _gitUtil;
     private readonly IDotnetUtil _dotnetUtil;
     private readonly IProcessUtil _processUtil;
-    private readonly IOpenApiFixer _openApiFixer;
-    private readonly IFileUtilSync _fileUtilSync;
     private readonly IFileUtil _fileUtil;
     private readonly ICloudflareDownloader _cloudflareDownloader;
 
-    public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil,
-        IOpenApiFixer openApiFixer, IFileUtilSync fileUtilSync, IFileUtil fileUtil, ICloudflareDownloader cloudflareDownloader)
+    public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil,
+        ICloudflareDownloader cloudflareDownloader)
     {
         _logger = logger;
         _gitUtil = gitUtil;
         _dotnetUtil = dotnetUtil;
         _processUtil = processUtil;
-        _openApiFixer = openApiFixer;
-        _fileUtilSync = fileUtilSync;
         _fileUtil = fileUtil;
         _cloudflareDownloader = cloudflareDownloader;
     }
 
     public async ValueTask Process(CancellationToken cancellationToken = default)
     {
-        string gitDirectory = await _gitUtil.CloneToTempDirectory($"https://github.com/soenneker/{Constants.Library.ToLowerInvariantFast()}", cancellationToken: cancellationToken);
+        string gitDirectory = await _gitUtil.CloneToTempDirectory($"https://github.com/soenneker/{Constants.Library.ToLowerInvariantFast()}",
+            cancellationToken: cancellationToken);
 
         string targetFilePath = Path.Combine(gitDirectory, "api_v2.json");
 
-        _fileUtilSync.DeleteIfExists(targetFilePath);
+        await _fileUtil.DeleteIfExists(targetFilePath, cancellationToken: cancellationToken);
 
         string? result = await _cloudflareDownloader.GetPageContent("https://api.instantly.ai/openapi/api_v2.json", cancellationToken: cancellationToken);
 
@@ -59,16 +55,14 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
 
-       // string fixedFilePath = Path.Combine(gitDirectory, "fixed.json");
-
-        //await _openApiFixer.Fix(filePath, fixedFilePath, cancellationToken).NoSync();
-
         string srcDirectory = Path.Combine(gitDirectory, "src");
 
         DeleteAllExceptCsproj(srcDirectory);
 
-        await _processUtil.Start("kiota", gitDirectory, $"kiota generate -l CSharp -d \"{targetFilePath}\" -o src -c InstantlyOpenApiClient -n {Constants.Library}",
-            waitForExit: true, cancellationToken: cancellationToken).NoSync();
+        await _processUtil.Start("kiota", gitDirectory,
+                              $"kiota generate -l CSharp -d \"{targetFilePath}\" -o src -c InstantlyOpenApiClient -n {Constants.Library}", waitForExit: true,
+                              cancellationToken: cancellationToken)
+                          .NoSync();
 
         await BuildAndPush(gitDirectory, cancellationToken).NoSync();
     }
