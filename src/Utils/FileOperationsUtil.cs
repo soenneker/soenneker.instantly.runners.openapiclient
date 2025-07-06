@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Soenneker.Cloudflare.Downloader.Abstract;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.File.Abstract;
+using Soenneker.Utils.Json;
 
 namespace Soenneker.Instantly.Runners.OpenApiClient.Utils;
 
@@ -51,7 +52,9 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         if (result == null)
             throw new Exception("Failed to download OpenAPI spec from Instantly API");
 
-        await _fileUtil.Write(targetFilePath, result, true, cancellationToken).NoSync();
+        string formatted = JsonUtil.Format(result, false);
+
+        await _fileUtil.Write(targetFilePath, formatted, true, cancellationToken).NoSync();
 
         await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
 
