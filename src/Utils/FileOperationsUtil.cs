@@ -25,9 +25,12 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IDotnetUtil _dotnetUtil;
     private readonly IProcessUtil _processUtil;
     private readonly IFileUtil _fileUtil;
+    private readonly IExampleTimestampNormalizer _timestampNormalizer;
     private readonly ICloudflareDownloader _cloudflareDownloader;
 
-    public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil,
+    private readonly DateTime _exampleDateTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+    public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil, IExampleTimestampNormalizer timestampNormalizer,
         ICloudflareDownloader cloudflareDownloader)
     {
         _logger = logger;
@@ -35,6 +38,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         _dotnetUtil = dotnetUtil;
         _processUtil = processUtil;
         _fileUtil = fileUtil;
+        _timestampNormalizer = timestampNormalizer;
         _cloudflareDownloader = cloudflareDownloader;
     }
 
@@ -55,6 +59,8 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         string formatted = JsonUtil.Format(result, false);
 
         await _fileUtil.Write(targetFilePath, formatted, true, cancellationToken).NoSync();
+
+        await _timestampNormalizer.Normalize(targetFilePath, _exampleDateTime, cancellationToken: cancellationToken).NoSync();
 
         await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
 
