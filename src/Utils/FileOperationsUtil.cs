@@ -28,9 +28,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IProcessUtil _processUtil;
     private readonly IFileUtil _fileUtil;
     private readonly ICloudflareDownloader _cloudflareDownloader;
-
-    private readonly DateTime _exampleDateTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    private readonly string _exampleGuid = "f9cc070d-8dba-4341-b847-f083c358e460";
+    public const string ExampleGuid = "f9cc070d-8dba-4341-b847-f083c358e460";
 
     public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil,
         ICloudflareDownloader cloudflareDownloader)
@@ -67,10 +65,8 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
                                                      DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out _), "1970-01-01T00:00:00.000Z")
 
                                              // 2) GUIDs / UUIDs ------------------------------------------------------
-                                             .AddRule(s => Guid.TryParse(s, out _), _exampleGuid)
-
-                                             .AddRule(s => Regex.IsMatch(s, @"^[0-9a-f]{24}$", RegexOptions.IgnoreCase),
-                                                 "000000000000000000000000")
+                                             .AddRule(s => Guid.TryParse(s, out _), ExampleGuid)
+                                             .AddRule(s => Regex.IsMatch(s, @"^[0-9a-f]{24}$", RegexOptions.IgnoreCase), "000000000000000000000000")
 
                                              // 3) PTID tokens --------------------------------------------------------
                                              .AddRule(s => Regex.IsMatch(s, "^ptid_[A-Za-z0-9_-]{10,}$"), "ptid_y8ujsCRs9972UH_LfKf3H");

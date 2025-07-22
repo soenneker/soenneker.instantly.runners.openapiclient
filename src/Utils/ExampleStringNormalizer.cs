@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Extensions.ValueTask;
@@ -17,6 +18,10 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
     private readonly IFileUtil _fileUtil;
     private readonly List<(Func<string, bool> match, string replacement)> _rules = new();
 
+    private static readonly Regex CommaGuidListRegex =
+        new(@"^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:,[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})+$",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     public ExampleStringNormalizer(IFileUtil fileUtil) => _fileUtil = fileUtil;
 
     public ExampleStringNormalizer AddRule(Func<string, bool> matcher, string replacement)
@@ -24,6 +29,7 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
         _rules.Add((matcher, replacement));
         return this;
     }
+
 
     public async ValueTask<int> Normalize(string jsonPath, CancellationToken ct = default)
     {
@@ -68,7 +74,20 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
             /* ----- leaf value in example context ----- */
             case JsonValue val when ctx && val.TryGetValue<string>(out var s):
                 s = s!.Trim();
-                foreach ((var match, var repl) in _rules)
+
+                /* ➊ comma‑separated list of GUIDs? */
+                if (CommaGuidListRegex.IsMatch(s))
+                {
+                    int cnt = s.Count(c => c == ',') + 1;
+                    string joined = string.Join(",", Enumerable.Repeat(FileOperationsUtil.ExampleGuid, cnt));
+
+                    val.ReplaceWith(JsonValue.Create(joined));
+                    hits += cnt;
+                    break;                          // done with this value
+                }
+
+                /* ➋ let the existing rule list handle single GUID, ObjectId, ptid … */
+                foreach (var (match, repl) in _rules)
                 {
                     if (match(s))
                     {
@@ -77,7 +96,6 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
                         break;
                     }
                 }
-
                 break;
         }
 
