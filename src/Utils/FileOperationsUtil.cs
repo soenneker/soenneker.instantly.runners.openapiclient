@@ -6,8 +6,10 @@ using Soenneker.Utils.Dotnet.Abstract;
 using Soenneker.Utils.Environment;
 using Soenneker.Utils.Process.Abstract;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Cloudflare.Downloader.Abstract;
@@ -25,24 +27,20 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IDotnetUtil _dotnetUtil;
     private readonly IProcessUtil _processUtil;
     private readonly IFileUtil _fileUtil;
-    private readonly IExampleTimestampNormalizer _timestampNormalizer;
-    private readonly IExampleGuidNormalizer _guidNormalizer;
     private readonly ICloudflareDownloader _cloudflareDownloader;
 
     private readonly DateTime _exampleDateTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private readonly string _exampleGuid = "f9cc070d-8dba-4341-b847-f083c358e460";
 
-    public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil, IExampleTimestampNormalizer timestampNormalizer,
-        ICloudflareDownloader cloudflareDownloader, IExampleGuidNormalizer guidNormalizer)
+    public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil,
+        ICloudflareDownloader cloudflareDownloader)
     {
         _logger = logger;
         _gitUtil = gitUtil;
         _dotnetUtil = dotnetUtil;
         _processUtil = processUtil;
         _fileUtil = fileUtil;
-        _timestampNormalizer = timestampNormalizer;
         _cloudflareDownloader = cloudflareDownloader;
-        _guidNormalizer = guidNormalizer;
     }
 
     public async ValueTask Process(CancellationToken cancellationToken = default)
@@ -63,9 +61,18 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         await _fileUtil.Write(targetFilePath, formatted, true, cancellationToken).NoSync();
 
-        await _timestampNormalizer.Normalize(targetFilePath, _exampleDateTime, cancellationToken: cancellationToken).NoSync();
+        ExampleStringNormalizer normalizer = new ExampleStringNormalizer(_fileUtil)
+                                             .AddRule(
+                                                 s => DateTimeOffset.TryParse(s, CultureInfo.InvariantCulture,
+                                                     DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out _), "1970-01-01T00:00:00.000Z")
 
-        await _guidNormalizer.Normalize(targetFilePath, _exampleGuid, cancellationToken: cancellationToken).NoSync();
+                                             // 2) GUIDs / UUIDs ------------------------------------------------------
+                                             .AddRule(s => Guid.TryParse(s, out _), _exampleGuid)
+
+                                             // 3) PTID tokens --------------------------------------------------------
+                                             .AddRule(s => Regex.IsMatch(s, "^ptid_[A-Za-z0-9_-]{10,}$"), "ptid_y8ujsCRs9972UH_LfKf3H");
+
+        await normalizer.Normalize(targetFilePath, cancellationToken).NoSync();
 
         await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
 

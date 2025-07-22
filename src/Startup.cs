@@ -22,9 +22,7 @@ public static class Startup
         services.AddHostedService<ConsoleHostedService>()
                 .AddScoped<IFileOperationsUtil, FileOperationsUtil>()
                 .AddRunnersManagerAsScoped()
-                .AddCloudflareDownloaderAsScoped()
-                .AddScoped<IExampleTimestampNormalizer, ExampleTimestampNormalizer>()
-                .AddScoped<IExampleGuidNormalizer, ExampleGuidNormalizer>();
+                .AddCloudflareDownloaderAsScoped();
 
         return services;
     }
