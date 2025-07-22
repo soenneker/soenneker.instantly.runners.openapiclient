@@ -40,9 +40,13 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
     private int Traverse(JsonNode? node, string? key, string? parentKey, bool inExample)
     {
         // promote context when we hit an example marker
-        bool hereIsExample = key is not null && (key.Equals("example", StringComparison.OrdinalIgnoreCase) ||
-                                                 key.Equals("value", StringComparison.OrdinalIgnoreCase) &&
-                                                 parentKey?.Equals("examples", StringComparison.OrdinalIgnoreCase) == true);
+        bool hereIsExample = key is not null && (
+            /* "example": "…" */
+            key.Equals("example", StringComparison.OrdinalIgnoreCase) ||
+            /*  "examples": [ "…" ]   OR   "examples": { "foo": { "value": "…" } }  */
+            key.Equals("examples", StringComparison.OrdinalIgnoreCase) ||
+            /* inner { "value": "…" } of a named examples block */
+            key.Equals("value", StringComparison.OrdinalIgnoreCase) && parentKey?.Equals("examples", StringComparison.OrdinalIgnoreCase) == true);
 
         bool ctx = inExample || hereIsExample;
         int hits = 0;

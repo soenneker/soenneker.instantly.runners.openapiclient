@@ -69,6 +69,9 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
                                              // 2) GUIDs / UUIDs ------------------------------------------------------
                                              .AddRule(s => Guid.TryParse(s, out _), _exampleGuid)
 
+                                             .AddRule(s => Regex.IsMatch(s, @"^[0-9a-f]{24}$", RegexOptions.IgnoreCase),
+                                                 "000000000000000000000000")
+
                                              // 3) PTID tokens --------------------------------------------------------
                                              .AddRule(s => Regex.IsMatch(s, "^ptid_[A-Za-z0-9_-]{10,}$"), "ptid_y8ujsCRs9972UH_LfKf3H");
 
