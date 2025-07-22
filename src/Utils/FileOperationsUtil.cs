@@ -26,12 +26,14 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IProcessUtil _processUtil;
     private readonly IFileUtil _fileUtil;
     private readonly IExampleTimestampNormalizer _timestampNormalizer;
+    private readonly IExampleGuidNormalizer _guidNormalizer;
     private readonly ICloudflareDownloader _cloudflareDownloader;
 
     private readonly DateTime _exampleDateTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private readonly string _exampleGuid = "f9cc070d-8dba-4341-b847-f083c358e460";
 
     public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil, IExampleTimestampNormalizer timestampNormalizer,
-        ICloudflareDownloader cloudflareDownloader)
+        ICloudflareDownloader cloudflareDownloader, IExampleGuidNormalizer guidNormalizer)
     {
         _logger = logger;
         _gitUtil = gitUtil;
@@ -40,6 +42,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         _fileUtil = fileUtil;
         _timestampNormalizer = timestampNormalizer;
         _cloudflareDownloader = cloudflareDownloader;
+        _guidNormalizer = guidNormalizer;
     }
 
     public async ValueTask Process(CancellationToken cancellationToken = default)
@@ -61,6 +64,8 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         await _fileUtil.Write(targetFilePath, formatted, true, cancellationToken).NoSync();
 
         await _timestampNormalizer.Normalize(targetFilePath, _exampleDateTime, cancellationToken: cancellationToken).NoSync();
+
+        await _guidNormalizer.Normalize(targetFilePath, _exampleGuid, cancellationToken: cancellationToken).NoSync();
 
         await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
 

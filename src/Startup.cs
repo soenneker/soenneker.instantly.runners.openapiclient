@@ -23,7 +23,8 @@ public static class Startup
                 .AddScoped<IFileOperationsUtil, FileOperationsUtil>()
                 .AddRunnersManagerAsScoped()
                 .AddCloudflareDownloaderAsScoped()
-                .AddScoped<IExampleTimestampNormalizer, ExampleTimestampNormalizer>();
+                .AddScoped<IExampleTimestampNormalizer, ExampleTimestampNormalizer>()
+                .AddScoped<IExampleGuidNormalizer, ExampleGuidNormalizer>();
 
         return services;
     }
