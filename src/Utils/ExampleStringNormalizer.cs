@@ -18,8 +18,8 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
     private readonly IFileUtil _fileUtil;
     private readonly List<(Func<string, bool> match, string replacement)> _rules = new();
 
-    private static readonly Regex CommaGuidListRegex =
-        new(@"^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:,[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})+$",
+         private static readonly Regex CommaGuidListRegex =
+        new(@"^\s*(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*(?:,\s*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\s*)+$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     public ExampleStringNormalizer(IFileUtil fileUtil) => _fileUtil = fileUtil;
