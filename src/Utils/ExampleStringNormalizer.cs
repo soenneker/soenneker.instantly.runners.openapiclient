@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Utils.File.Abstract;
 using Soenneker.Instantly.Runners.OpenApiClient.Utils.Abstract;
@@ -16,7 +17,7 @@ namespace Soenneker.Instantly.Runners.OpenApiClient.Utils;
 public sealed class ExampleStringNormalizer : IExampleStringNormalizer
 {
     private readonly IFileUtil _fileUtil;
-    private readonly List<(Func<string, bool> match, string replacement)> _rules = new();
+    private readonly List<(Func<string, bool> match, string replacement)> _rules = [];
 
          private static readonly Regex CommaGuidListRegex =
         new(@"^\s*(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*(?:,\s*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\s*)+$",
@@ -61,7 +62,7 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
         {
             /* ----- object ----- */
             case JsonObject obj:
-                foreach (var kv in obj.ToList()) // snapshot
+                foreach (KeyValuePair<string, JsonNode?> kv in obj.ToList()) // snapshot
                     hits += Traverse(kv.Value, kv.Key, key, ctx);
                 break;
 
@@ -72,7 +73,7 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
                 break;
 
             /* ----- leaf value in example context ----- */
-            case JsonValue val when ctx && val.TryGetValue<string>(out var s):
+            case JsonValue val when ctx && val.TryGetValue<string>(out string? s):
                 s = s!.Trim();
 
                 /* ➊ comma‑separated list of GUIDs? */
@@ -87,7 +88,7 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
                 }
 
                 /* ➋ let the existing rule list handle single GUID, ObjectId, ptid … */
-                foreach (var (match, repl) in _rules)
+                foreach ((Func<string, bool> match, string repl) in _rules)
                 {
                     if (match(s))
                     {
