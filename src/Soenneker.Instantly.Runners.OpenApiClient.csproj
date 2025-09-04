@@ -45,7 +45,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Playwright" Version="1.54.0" />
         <PackageReference Include="Soenneker.Cloudflare.Downloader" Version="3.0.34" />
-        <PackageReference Include="Soenneker.Extensions.LoggerConfiguration" Version="3.0.1022" />
+        <PackageReference Include="Soenneker.Extensions.LoggerConfiguration" Version="3.0.1026" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
         <PackageReference Include="Soenneker.Managers.Runners" Version="3.0.1303" />
         <PackageReference Include="Soenneker.Utils.Json" Version="3.0.2350" />
