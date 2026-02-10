@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -47,6 +47,7 @@
         <PackageReference Include="Soenneker.Extensions.LoggerConfiguration" Version="4.0.1126" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
         <PackageReference Include="Soenneker.Managers.Runners" Version="4.0.1724" />
+        <PackageReference Include="Soenneker.Utils.Directory" Version="4.0.779" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2399" />
     </ItemGroup>
 </Project>
