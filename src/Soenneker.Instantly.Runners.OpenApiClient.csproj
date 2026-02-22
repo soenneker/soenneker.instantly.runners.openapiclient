@@ -46,7 +46,7 @@
         <PackageReference Include="Soenneker.Cloudflare.Downloader" Version="4.0.136" />
         <PackageReference Include="Soenneker.Extensions.LoggerConfiguration" Version="4.0.1136" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
-        <PackageReference Include="Soenneker.Managers.Runners" Version="4.0.1769" />
+        <PackageReference Include="Soenneker.Managers.Runners" Version="4.0.1772" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2406" />
     </ItemGroup>
 </Project>
