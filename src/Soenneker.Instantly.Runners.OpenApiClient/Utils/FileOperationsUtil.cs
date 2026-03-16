@@ -55,15 +55,8 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         await _fileUtil.DeleteIfExists(targetFilePath, cancellationToken: cancellationToken);
 
-        string? result = await _cloudflareDownloader.DownloadFile("https://api.instantly.ai/openapi/api_v2.json", cancellationToken: cancellationToken);
-
-        if (result == null)
-            throw new Exception("Failed to download OpenAPI spec from Instantly API");
-
-        string formatted = JsonUtil.Format(result, false);
-
-        await _fileUtil.Write(targetFilePath, formatted, true, cancellationToken).NoSync();
-
+        await _cloudflareDownloader.DownloadJsonToPath("https://api.instantly.ai/openapi/api_v2.json", targetFilePath, cancellationToken: cancellationToken);
+        
         ExampleStringNormalizer normalizer = new ExampleStringNormalizer(_fileUtil)
                                              .AddRule(
                                                  s => DateTimeOffset.TryParse(s, CultureInfo.InvariantCulture,
