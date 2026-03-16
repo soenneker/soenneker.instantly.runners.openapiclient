@@ -55,7 +55,7 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         await _fileUtil.DeleteIfExists(targetFilePath, cancellationToken: cancellationToken);
 
-        string? result = await _cloudflareDownloader.GetPageContent("https://api.instantly.ai/openapi/api_v2.json", cancellationToken: cancellationToken);
+        string? result = await _cloudflareDownloader.DownloadFile("https://api.instantly.ai/openapi/api_v2.json", cancellationToken: cancellationToken);
 
         if (result == null)
             throw new Exception("Failed to download OpenAPI spec from Instantly API");
