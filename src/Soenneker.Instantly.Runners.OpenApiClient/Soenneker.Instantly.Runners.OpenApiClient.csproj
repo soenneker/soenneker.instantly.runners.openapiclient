@@ -25,7 +25,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <IsPackable>true</IsPackable>
+        <IsPackable>false</IsPackable>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/soenneker/soenneker.instantly.runners.openapiclient</PackageProjectUrl>
         <RepositoryUrl>https://github.com/soenneker/soenneker.instantly.runners.openapiclient</RepositoryUrl>
