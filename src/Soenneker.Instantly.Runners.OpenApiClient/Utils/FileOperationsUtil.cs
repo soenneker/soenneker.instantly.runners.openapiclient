@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Soenneker.Cloudflare.Downloader.Abstract;
 using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
+using Soenneker.Kiota.Util.Abstract;
 using Soenneker.Utils.Directory.Abstract;
 using Soenneker.Utils.File.Abstract;
 using Soenneker.Utils.Json;
@@ -29,18 +30,20 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IGitUtil _gitUtil;
     private readonly IDotnetUtil _dotnetUtil;
     private readonly IProcessUtil _processUtil;
+    private readonly IKiotaUtil _kiotaUtil;
     private readonly IFileUtil _fileUtil;
     private readonly IDirectoryUtil _directoryUtil;
     private readonly ICloudflareDownloader _cloudflareDownloader;
     public const string ExampleGuid = "f9cc070d-8dba-4341-b847-f083c358e460";
 
     public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil,
-        IDirectoryUtil directoryUtil, ICloudflareDownloader cloudflareDownloader)
+        IDirectoryUtil directoryUtil, ICloudflareDownloader cloudflareDownloader, IKiotaUtil kiotaUtil)
     {
         _logger = logger;
         _gitUtil = gitUtil;
         _dotnetUtil = dotnetUtil;
         _processUtil = processUtil;
+        _kiotaUtil = kiotaUtil;
         _fileUtil = fileUtil;
         _directoryUtil = directoryUtil;
         _cloudflareDownloader = cloudflareDownloader;
@@ -71,16 +74,13 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
 
         await normalizer.Normalize(targetFilePath, cancellationToken).NoSync();
 
-        await _processUtil.Start("dotnet", null, "tool update --global Microsoft.OpenApi.Kiota", waitForExit: true, cancellationToken: cancellationToken);
+        await _kiotaUtil.EnsureInstalled(cancellationToken);
 
         string srcDirectory = Path.Combine(gitDirectory, "src", Constants.Library);
 
         await DeleteAllExceptCsproj(srcDirectory, cancellationToken);
 
-        await _processUtil.Start("kiota", gitDirectory,
-                              $"kiota generate -l CSharp -d \"{targetFilePath}\" -o src/{Constants.Library} -c InstantlyOpenApiClient -n {Constants.Library} --ebc --cc", waitForExit: true,
-                              cancellationToken: cancellationToken)
-                          .NoSync();
+        await _kiotaUtil.Generate(targetFilePath, "InstantlyOpenApiClient", Constants.Library, gitDirectory, cancellationToken).NoSync();
 
         await BuildAndPush(gitDirectory, cancellationToken).NoSync();
     }
