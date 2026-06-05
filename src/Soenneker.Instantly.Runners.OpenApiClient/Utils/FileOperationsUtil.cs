@@ -36,6 +36,9 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
     private readonly IFileUtil _fileUtil;
     private readonly IDirectoryUtil _directoryUtil;
     private readonly ICloudflareDownloader _cloudflareDownloader;
+    /// <summary>
+    /// The example guid.
+    /// </summary>
     public const string ExampleGuid = "f9cc070d-8dba-4341-b847-f083c358e460";
 
     public FileOperationsUtil(ILogger<FileOperationsUtil> logger, IGitUtil gitUtil, IDotnetUtil dotnetUtil, IProcessUtil processUtil, IFileUtil fileUtil,
@@ -92,6 +95,12 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
         await BuildAndPush(gitDirectory, cancellationToken).NoSync();
     }
 
+    /// <summary>
+    /// Deletes all except csproj.
+    /// </summary>
+    /// <param name="directoryPath">The directory path.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DeleteAllExceptCsproj(string directoryPath, CancellationToken cancellationToken = default)
     {
         if (!(await _directoryUtil.Exists(directoryPath, cancellationToken)))

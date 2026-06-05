@@ -24,6 +24,12 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
 
     public ExampleStringNormalizer(IFileUtil fileUtil) => _fileUtil = fileUtil;
 
+    /// <summary>
+    /// Adds rule.
+    /// </summary>
+    /// <param name="matcher">The matcher.</param>
+    /// <param name="replacement">The replacement.</param>
+    /// <returns>The result of the operation.</returns>
     public ExampleStringNormalizer AddRule(Func<string, bool> matcher, string replacement)
     {
         _rules.Add((matcher, replacement));
@@ -31,6 +37,12 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
     }
 
 
+    /// <summary>
+    /// Executes the normalize operation.
+    /// </summary>
+    /// <param name="jsonPath">The json path.</param>
+    /// <param name="ct">The ct.</param>
+    /// <returns>A task containing the result of the operation.</returns>
     public async ValueTask<int> Normalize(string jsonPath, CancellationToken ct = default)
     {
         string json = await _fileUtil.Read(jsonPath, cancellationToken: ct).NoSync();
