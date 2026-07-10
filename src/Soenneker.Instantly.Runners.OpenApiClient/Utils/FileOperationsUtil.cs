@@ -81,6 +81,10 @@ public sealed class FileOperationsUtil : IFileOperationsUtil
                                              .AddRule(s => Regex.IsMatch(s, "^ptid_[A-Za-z0-9_-]{10,}$"), "ptid_y8ujsCRs9972UH_LfKf3H");
 
         await normalizer.Normalize(targetFilePath, cancellationToken).NoSync();
+
+        UuidFormatNormalizer uuidFormatNormalizer = new(_fileUtil);
+        await uuidFormatNormalizer.Normalize(targetFilePath, cancellationToken).NoSync();
+
         await _openApiFixer.Fix(targetFilePath, fixedFilePath, cancellationToken);
 
 
