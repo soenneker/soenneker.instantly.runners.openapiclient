@@ -73,8 +73,11 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
         {
             /* ----- object ----- */
             case JsonObject obj:
-                foreach (KeyValuePair<string, JsonNode?> kv in obj.ToList()) // snapshot
+                for (int i = 0; i < obj.Count; i++)
+                {
+                    KeyValuePair<string, JsonNode?> kv = obj.GetAt(i);
                     hits += Traverse(kv.Value, kv.Key, key, ctx);
+                }
                 break;
 
             /* ----- array ------ */

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -54,8 +52,8 @@ public sealed class UuidFormatNormalizer
                     changed++;
                 }
 
-                foreach (KeyValuePair<string, JsonNode?> property in obj.ToList())
-                    changed += RemoveUuidFormats(property.Value);
+                for (int i = 0; i < obj.Count; i++)
+                    changed += RemoveUuidFormats(obj.GetAt(i).Value);
                 break;
 
             case JsonArray array:
