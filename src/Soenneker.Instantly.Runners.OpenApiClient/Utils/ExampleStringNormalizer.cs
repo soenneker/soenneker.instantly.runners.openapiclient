@@ -96,7 +96,7 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
                     int cnt = s.Count(c => c == ',') + 1;
                     string joined = string.Join(",", Enumerable.Repeat(FileOperationsUtil.ExampleGuid, cnt));
 
-                    val.ReplaceWith(JsonValue.Create(joined));
+                    ReplaceValue(val, JsonValue.Create(joined)!);
                     hits += cnt;
                     break;                          // done with this value
                 }
@@ -106,7 +106,7 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
                 {
                     if (match(s))
                     {
-                        val.ReplaceWith(JsonValue.Create(repl));
+                        ReplaceValue(val, JsonValue.Create(repl)!);
                         hits++;
                         break;
                     }
@@ -116,4 +116,22 @@ public sealed class ExampleStringNormalizer : IExampleStringNormalizer
 
         return hits;
     }
+    private static void ReplaceValue(JsonNode node, JsonNode replacement)
+    {
+        if (node.Parent is JsonArray array)
+        {
+            array[array.IndexOf(node)] = replacement;
+        }
+        else if (node.Parent is JsonObject obj)
+        {
+            foreach (var property in obj)
+            {
+                if (!ReferenceEquals(property.Value, node))
+                    continue;
+                obj[property.Key] = replacement;
+                break;
+            }
+        }
+    }
+
 }
