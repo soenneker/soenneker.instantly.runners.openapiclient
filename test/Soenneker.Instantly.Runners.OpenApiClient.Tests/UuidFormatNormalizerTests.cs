@@ -7,7 +7,7 @@ namespace Soenneker.Instantly.Runners.OpenApiClient.Tests;
 public sealed class UuidFormatNormalizerTests
 {
     [Test]
-    public async Task RemoveUuidFormats_should_remove_uuid_formats_only()
+    public async ValueTask RemoveUuidFormats_should_remove_uuid_formats_only()
     {
         JsonNode root = JsonNode.Parse("""
                                            {
