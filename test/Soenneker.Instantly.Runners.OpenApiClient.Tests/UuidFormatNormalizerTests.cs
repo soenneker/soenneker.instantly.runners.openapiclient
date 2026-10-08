@@ -1,13 +1,14 @@
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Soenneker.Instantly.Runners.OpenApiClient.Utils;
+using System.Threading;
 
 namespace Soenneker.Instantly.Runners.OpenApiClient.Tests;
 
 public sealed class UuidFormatNormalizerTests
 {
     [Test]
-    public async ValueTask RemoveUuidFormats_should_remove_uuid_formats_only()
+    public async ValueTask RemoveUuidFormats_should_remove_uuid_formats_only(CancellationToken cancellationToken)
     {
         JsonNode root = JsonNode.Parse("""
                                            {
