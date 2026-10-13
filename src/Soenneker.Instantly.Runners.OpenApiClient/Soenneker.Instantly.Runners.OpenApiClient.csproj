@@ -47,7 +47,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Cloudflare.Downloader" Version="4.0.421" />
+        <PackageReference Include="Soenneker.Cloudflare.Downloader" Version="4.0.423" />
         <PackageReference Include="Soenneker.Extensions.LoggerConfiguration" Version="4.0.1419" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
         <PackageReference Include="Soenneker.Kiota.Util" Version="4.0.150" />
