@@ -47,11 +47,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Cloudflare.Downloader" Version="11.0.476" />
-        <PackageReference Include="Soenneker.Extensions.LoggerConfiguration" Version="11.0.1467" />
+        <PackageReference Include="Soenneker.Cloudflare.Downloader" Version="11.0.477" />
+        <PackageReference Include="Soenneker.Extensions.LoggerConfiguration" Version="11.0.1468" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="11.0.0" />
         <PackageReference Include="Soenneker.Kiota.Util" Version="11.0.192" />
-        <PackageReference Include="Soenneker.Managers.Runners" Version="11.0.2734" />
-        <PackageReference Include="Soenneker.OpenApi.Fixer" Version="11.0.440" />
+        <PackageReference Include="Soenneker.Managers.Runners" Version="11.0.2735" />
+        <PackageReference Include="Soenneker.OpenApi.Fixer" Version="11.0.441" />
 </ItemGroup>
 </Project>
